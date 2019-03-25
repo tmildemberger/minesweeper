@@ -48,17 +48,35 @@ public:
         //         std::cout << i / cols_ << ' ' << i % cols_ << '\n';
         //     }
         // }
-        for (std::size_t idx { 0 }; idx < grid.size(); ++idx) {
-            int places_to_look[] 
-                                { -cols_ - 1, -cols_, -cols_ + 1,   // top
-                                  -1, 1,                            // middle
-                                  cols_ - 1, cols_, cols_ + 1 };    // bottom
-            for (auto place : places_to_look) {
-                if (idx + place >= 0 && idx + place < grid.size()) {
-                    if (grid[idx + place].is_mine) ++grid[idx].n_around;
-                }
-            }
-        }
+	for (int row { 0 }; row < rows_; ++row) {
+	    for (int col { 0 }; col < cols_; ++col) {
+		std::pair<int, int> places_to_look[]
+		{ {-1, -1}, {-1, 0}, {-1, 1},
+		  { 0, -1},          { 0, 1},
+		  { 1, -1}, { 1, 0}, { 1, 1} };
+                for (const auto& place : places_to_look) {
+	            int place_r { row + place.first };
+		    int place_c { col + place.second };
+		    if (place_r >= 0 && place_r < rows_ &&
+		        place_c >= 0 && place_c < cols_) {
+		        if (grid[place_r * cols_ + place_c].is_mine) {
+			    ++grid[row * cols_ + col].n_around;
+			}
+		    }
+		}
+	    }
+	}
+//        for (std::size_t idx { 0 }; idx < grid.size(); ++idx) {
+//            int places_to_look[] 
+//                                { -cols_ - 1, -cols_, -cols_ + 1,   // top
+//                                  -1, 1,                            // middle
+//                                  cols_ - 1, cols_, cols_ + 1 };    // bottom
+//            for (auto place : places_to_look) {
+//                if (idx + place >= 0 && idx + place < grid.size()) {
+//                    if (grid[idx + place].is_mine) ++grid[idx].n_around;
+//                }
+//            }
+//        }
     }
     void step(int row, int col) {
         int index { row * cols_ + col };
@@ -71,7 +89,7 @@ public:
         } else if (grid[index].is_mine) {
             std::cout << "you blew\n";
             lost = true;
-        } else {
+        } else if (!(grid[index].got_dug)) {
             grid[index].got_dug = true;
             if (total_size == ++needed_bombs) {
                 won = true;
@@ -112,9 +130,7 @@ private:
 };
 
 int main() {
-    std::cout << "\e[31m" << "Hello" << "\e[0m" << " World\n";
-    return 0;
-    MineSweeper mines { 7, 7, 0.15 };
+    MineSweeper mines { 3, 3, 0.1 };
     int row { 0 };
     int col { 0 };
     // std::cin >> row >> col;
