@@ -1,0 +1,1 @@
+exec minesweeper *.cpp
